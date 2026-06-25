@@ -30,7 +30,7 @@ const schema = z.object({
   priority: z.number().int().min(1).max(3).default(1),
   notes: z.string().optional(),
 })
-type FormValues = z.infer<typeof schema>
+type FormValues = z.input<typeof schema>
 
 const REQUEST_TYPES = [
   { value: 'vacation',       label: 'Urlaub',       icon: '☀️', color: 'bg-sky-50 border-sky-300 text-sky-700',    active: 'bg-sky-500 border-sky-500 text-white' },

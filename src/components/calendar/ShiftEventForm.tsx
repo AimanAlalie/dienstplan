@@ -1,12 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { shiftSchema, ShiftFormValues } from '@/lib/validations/shift'
 import { createShift, updateShift } from '@/lib/actions/shifts'
-import { Employee, ShiftType, ShiftWithEmployee } from '@/types/database'
+import { Employee, ShiftWithEmployee } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,7 +24,6 @@ import { SHIFT_CATEGORY_LABELS } from '@/lib/constants/labels'
 interface ShiftEventFormProps {
   monthlyPlanId: string
   employees: Employee[]
-  shiftTypes: ShiftType[]
   initialDate?: string
   initialEmployeeId?: string
   existingShift?: ShiftWithEmployee
@@ -36,7 +34,6 @@ interface ShiftEventFormProps {
 export function ShiftEventForm({
   monthlyPlanId,
   employees,
-  shiftTypes,
   initialDate,
   initialEmployeeId,
   existingShift,
@@ -60,9 +57,7 @@ export function ShiftEventForm({
           shift_date: existingShift.shift_date,
           start_time: existingShift.start_time.substring(11, 16),
           end_time: existingShift.end_time.substring(11, 16),
-          break_minutes: existingShift.break_minutes,
           category: existingShift.category,
-          location: existingShift.location ?? '',
           notes: existingShift.notes ?? '',
           status: existingShift.status,
         }
@@ -71,35 +66,13 @@ export function ShiftEventForm({
           employee_id: initialEmployeeId ?? '',
           start_time: '08:00',
           end_time: '16:00',
-          break_minutes: 30,
           category: 'normal',
           status: 'scheduled',
         },
   })
 
-  const selectedTypeId = watch('shift_type_id')
   const selectedEmployeeId = watch('employee_id')
-  const selectedCategory = watch('category')
   const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId)
-
-  // Auto-fill start/end from shift type
-  useEffect(() => {
-    if (selectedTypeId) {
-      const type = shiftTypes.find((t) => t.id === selectedTypeId)
-      if (type) {
-        setValue('start_time', type.default_start)
-        setValue('end_time', type.default_end)
-      }
-    }
-  }, [selectedTypeId, shiftTypes, setValue])
-
-  // 24h-Dienst Shortcut
-  const set24hShift = () => {
-    setValue('start_time', '08:00')
-    setValue('end_time', '08:00')
-    setValue('break_minutes', 60)
-    setValue('category', 'normal')
-  }
 
   const onSubmit = async (values: ShiftFormValues) => {
     const result = isEdit
@@ -178,33 +151,6 @@ export function ShiftEventForm({
         </Select>
       </div>
 
-      {/* Diensttyp (optional) */}
-      <div className="space-y-1.5">
-        <Label>Dienstvorlage <span className="text-slate-400 text-xs">(optional, füllt Zeiten)</span></Label>
-        <Select
-          defaultValue={existingShift?.shift_type_id ?? undefined}
-          onValueChange={(v) => setValue('shift_type_id', v === 'none' ? undefined : v)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Keine Vorlage" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Keine Vorlage</SelectItem>
-            {shiftTypes.map((type) => (
-              <SelectItem key={type.id} value={type.id}>
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ backgroundColor: type.color }}
-                  />
-                  {type.name}
-                  <span className="text-slate-400 text-xs">({type.default_start}–{type.default_end})</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
 
       {/* Datum */}
       <div className="space-y-1.5">
@@ -239,26 +185,9 @@ export function ShiftEventForm({
         </div>
       </div>
 
-      {/* 24h-Shortcut */}
-      <button
-        type="button"
-        onClick={set24hShift}
-        className="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline underline-offset-2"
-      >
-        24h-Dienst (08:00–08:00) setzen
-      </button>
 
-      {/* Pause & Status */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label>Pause (Minuten)</Label>
-          <Input
-            {...register('break_minutes')}
-            type="number"
-            min="0"
-            max="480"
-          />
-        </div>
+      {/* Status */}
+      <div className="grid grid-cols-1 gap-3">
         <div className="space-y-1.5">
           <Label>Status</Label>
           <Select
@@ -275,12 +204,6 @@ export function ShiftEventForm({
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      {/* Ort & Notizen */}
-      <div className="space-y-1.5">
-        <Label>Einsatzort</Label>
-        <Input {...register('location')} placeholder="z. B. Station 3, Wohnbereich B" />
       </div>
 
       <div className="space-y-1.5">

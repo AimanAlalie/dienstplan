@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Employee, MonthlyPlan, ShiftType, ShiftWithEmployee } from '@/types/database'
+import { Employee, MonthlyPlan, ShiftWithEmployee } from '@/types/database'
 import { PlanningCalendar } from '@/components/calendar/PlanningCalendar'
 import { PublishButton } from '@/components/planning/PublishButton'
 import { TaxAdvisorExportButton } from '@/components/planning/TaxAdvisorExportButton'
@@ -11,10 +11,9 @@ interface Props {
   plan: MonthlyPlan
   initialShifts: ShiftWithEmployee[]
   employees: Employee[]
-  shiftTypes: ShiftType[]
 }
 
-export function PlanningCalendarClient({ plan: initialPlan, initialShifts, employees, shiftTypes }: Props) {
+export function PlanningCalendarClient({ plan: initialPlan, initialShifts, employees }: Props) {
   const [plan, setPlan] = useState<MonthlyPlan>(initialPlan)
   const [shifts, setShifts] = useState<ShiftWithEmployee[]>(initialShifts)
   const supabase = getSupabaseBrowserClient()
@@ -44,7 +43,6 @@ export function PlanningCalendarClient({ plan: initialPlan, initialShifts, emplo
           plan={plan}
           shifts={shifts}
           employees={employees}
-          shiftTypes={shiftTypes}
           onRefresh={refresh}
         />
       </div>

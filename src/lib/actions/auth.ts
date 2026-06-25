@@ -7,13 +7,14 @@ import { ServerActionResult } from '@/types/app'
 export async function signUp(
   email: string,
   password: string,
-  fullName: string
+  fullName: string,
+  phone?: string
 ): Promise<ServerActionResult> {
   const supabase = await getSupabaseServerClient()
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName } },
+    options: { data: { full_name: fullName, phone: phone ?? null } },
   })
 
   if (error) {

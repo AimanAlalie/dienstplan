@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { getOrCreateMonthlyPlan } from '@/lib/actions/monthly-plans'
 import { getShiftsByPlanId } from '@/lib/queries/shifts'
 import { getEmployees } from '@/lib/queries/employees'
@@ -23,8 +22,6 @@ export default async function PlanningPage({ params }: Props) {
     notFound()
   }
 
-  const supabase = await getSupabaseServerClient()
-
   // Sicherstellen dass ein Plan für diesen Monat existiert
   const planResult = await getOrCreateMonthlyPlan(year, month)
 
@@ -43,12 +40,11 @@ export default async function PlanningPage({ params }: Props) {
 
   const plan = planResult.success && planResult.data ? planResult.data : DEMO_PLAN
 
-  const [shifts, employees, { data: shiftTypes }] = await Promise.all([
+  const [shifts, employees] = await Promise.all([
     planResult.success && planResult.data
       ? getShiftsByPlanId(plan.id).catch(() => [])
       : Promise.resolve([]),
     getEmployees(true).catch(() => []),
-    supabase.from('shift_types').select('*').eq('is_active', true).order('sort_order'),
   ])
 
   return (
@@ -68,7 +64,6 @@ export default async function PlanningPage({ params }: Props) {
         plan={plan}
         initialShifts={shifts}
         employees={employees}
-        shiftTypes={shiftTypes ?? []}
       />
     </div>
   )

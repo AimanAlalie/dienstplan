@@ -12,13 +12,18 @@ interface AuditEntry {
 }
 
 export async function insertAuditLog(entry: AuditEntry) {
-  const supabase = getSupabaseAdminClient()
-  await supabase.from('audit_logs').insert({
-    actor_id: entry.actorId,
-    action: entry.action,
-    entity_type: entry.entityType,
-    entity_id: entry.entityId ?? null,
-    old_data: entry.oldData ?? null,
-    new_data: entry.newData ?? null,
-  })
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return
+  try {
+    const supabase = getSupabaseAdminClient()
+    await supabase.from('audit_logs').insert({
+      actor_id: entry.actorId,
+      action: entry.action,
+      entity_type: entry.entityType,
+      entity_id: entry.entityId ?? null,
+      old_data: entry.oldData ?? null,
+      new_data: entry.newData ?? null,
+    })
+  } catch {
+    // Audit-Log-Fehler blockieren keine Hauptfunktion
+  }
 }

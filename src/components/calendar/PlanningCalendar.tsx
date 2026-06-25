@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { format, getDaysInMonth, startOfMonth, getDay } from 'date-fns'
-import { ShiftWithEmployee, Employee, ShiftType, MonthlyPlan } from '@/types/database'
+import { ShiftWithEmployee, Employee, MonthlyPlan } from '@/types/database'
 import { detectConflicts, getConflictingShiftIds } from '@/lib/utils/conflict-detection'
 import { getContrastColor } from '@/lib/utils/color'
 import { SHIFT_CATEGORY_LABELS, SHIFT_CATEGORY_COLORS } from '@/lib/constants/labels'
@@ -17,7 +17,6 @@ interface PlanningCalendarProps {
   plan: MonthlyPlan
   shifts: ShiftWithEmployee[]
   employees: Employee[]
-  shiftTypes: ShiftType[]
   onRefresh: () => void
 }
 
@@ -27,7 +26,6 @@ export function PlanningCalendar({
   plan,
   shifts,
   employees,
-  shiftTypes,
   onRefresh,
 }: PlanningCalendarProps) {
   const [filterEmployees, setFilterEmployees] = useState<string[]>([])
@@ -218,7 +216,6 @@ export function PlanningCalendar({
         onClose={() => setDialogOpen(false)}
         monthlyPlanId={plan.id}
         employees={employees.filter(e => e.status === 'active')}
-        shiftTypes={shiftTypes}
         initialDate={selectedDate}
         existingShift={selectedShift}
         onSaved={onRefresh}

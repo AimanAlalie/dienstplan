@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ShiftEventForm } from './ShiftEventForm'
-import { Employee, ShiftType, ShiftWithEmployee } from '@/types/database'
+import { Employee, ShiftWithEmployee } from '@/types/database'
 import { deleteShift } from '@/lib/actions/shifts'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog'
@@ -19,7 +19,6 @@ interface ShiftDialogProps {
   onClose: () => void
   monthlyPlanId: string
   employees: Employee[]
-  shiftTypes: ShiftType[]
   initialDate?: string
   initialEmployeeId?: string
   existingShift?: ShiftWithEmployee
@@ -31,7 +30,6 @@ export function ShiftDialog({
   onClose,
   monthlyPlanId,
   employees,
-  shiftTypes,
   initialDate,
   initialEmployeeId,
   existingShift,
@@ -79,7 +77,6 @@ export function ShiftDialog({
         <ShiftEventForm
           monthlyPlanId={monthlyPlanId}
           employees={employees}
-          shiftTypes={shiftTypes}
           initialDate={initialDate}
           initialEmployeeId={initialEmployeeId}
           existingShift={existingShift}

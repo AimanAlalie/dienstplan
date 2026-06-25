@@ -15,6 +15,7 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 const schema = z.object({
   fullName: z.string().min(2, 'Mindestens 2 Zeichen'),
+  phone: z.string().max(20).optional().or(z.literal('')),
   email: z.string().email('Ungültige E-Mail-Adresse'),
   password: z.string().min(6, 'Mindestens 6 Zeichen'),
 })
@@ -31,7 +32,7 @@ export function RegisterForm() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (values: FormValues) => {
-    const result = await signUp(values.email, values.password, values.fullName)
+    const result = await signUp(values.email, values.password, values.fullName, values.phone || undefined)
 
     if (!result.success) {
       toast.error(result.error ?? 'Registrierung fehlgeschlagen')
@@ -55,6 +56,19 @@ export function RegisterForm() {
           {...register('fullName')}
         />
         {errors.fullName && <p className="text-xs text-red-500">{errors.fullName.message}</p>}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="phone" className="text-slate-700">
+          Telefonnummer <span className="text-slate-400 text-xs">(optional)</span>
+        </Label>
+        <Input
+          id="phone"
+          type="tel"
+          autoComplete="tel"
+          placeholder="+49 123 456789"
+          {...register('phone')}
+        />
       </div>
 
       <div className="space-y-1.5">

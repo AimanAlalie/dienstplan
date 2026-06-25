@@ -13,7 +13,7 @@ export const shiftSchema = z.object({
   status: z.enum(['scheduled', 'cancelled', 'completed']).default('scheduled'),
 })
 
-export type ShiftFormValues = z.infer<typeof shiftSchema>
+export type ShiftFormValues = z.input<typeof shiftSchema>
 
 export const shiftRequestSchema = z.object({
   request_type: z.enum([
@@ -31,7 +31,7 @@ export const shiftRequestSchema = z.object({
   notes: z.string().max(500).optional().or(z.literal('')),
 })
 
-export type ShiftRequestFormValues = z.infer<typeof shiftRequestSchema>
+export type ShiftRequestFormValues = z.input<typeof shiftRequestSchema>
 
 export const requestDeadlineSchema = z.object({
   year: z.coerce.number().min(2020).max(2100),
@@ -54,7 +54,7 @@ export const adminEventSchema = z.object({
   color: z.string().default('#64748b'),
 })
 
-export type AdminEventFormValues = z.infer<typeof adminEventSchema>
+export type AdminEventFormValues = z.input<typeof adminEventSchema>
 
 export const employeeSettingsSchema = z.object({
   notify_shift_reminder: z.boolean().default(true),
@@ -63,4 +63,4 @@ export const employeeSettingsSchema = z.object({
   notify_via_email: z.boolean().default(false),
 })
 
-export type EmployeeSettingsFormValues = z.infer<typeof employeeSettingsSchema>
+export type EmployeeSettingsFormValues = z.input<typeof employeeSettingsSchema>

@@ -30,6 +30,7 @@ export interface LinkableProfile {
   id: string
   email: string
   full_name: string | null
+  phone?: string | null
 }
 
 export async function getLinkableProfiles(currentLinkedId?: string | null): Promise<LinkableProfile[]> {
@@ -46,7 +47,25 @@ export async function getLinkableProfiles(currentLinkedId?: string | null): Prom
       .filter((id): id is string => !!id && id !== currentLinkedId)
   )
 
-  return ((allProfiles ?? []) as LinkableProfile[]).filter((p) => !linkedSet.has(p.id))
+  const profiles = ((allProfiles ?? []) as LinkableProfile[]).filter((p) => !linkedSet.has(p.id))
+
+  // Telefonnummern aus Auth-Metadata nur wenn Service-Role-Key vorhanden
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      const { getSupabaseAdminClient } = await import('@/lib/supabase/admin')
+      const admin = getSupabaseAdminClient()
+      const { data: authList } = await admin.auth.admin.listUsers({ perPage: 1000 })
+      const phoneMap = new Map<string, string | null>()
+      for (const u of (authList?.users ?? [])) {
+        phoneMap.set(u.id, u.user_metadata?.phone ?? null)
+      }
+      return profiles.map((p) => ({ ...p, phone: phoneMap.get(p.id) ?? null }))
+    } catch {
+      // Phone-Lookup fehlgeschlagen — trotzdem weitermachen
+    }
+  }
+
+  return profiles
 }
 
 export async function getMyEmployee(): Promise<Employee | null> {
