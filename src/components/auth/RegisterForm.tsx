@@ -14,7 +14,8 @@ import { Label } from '@/components/ui/label'
 import { Eye, EyeOff, Loader2 } from 'lucide-react'
 
 const schema = z.object({
-  fullName: z.string().min(2, 'Mindestens 2 Zeichen'),
+  firstName: z.string().min(2, 'Mindestens 2 Zeichen'),
+  lastName: z.string().min(2, 'Mindestens 2 Zeichen'),
   phone: z.string().max(20).optional().or(z.literal('')),
   email: z.string().email('Ungültige E-Mail-Adresse'),
   password: z.string().min(6, 'Mindestens 6 Zeichen'),
@@ -32,7 +33,7 @@ export function RegisterForm() {
   } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (values: FormValues) => {
-    const result = await signUp(values.email, values.password, values.fullName, values.phone || undefined)
+    const result = await signUp(values.email, values.password, `${values.firstName} ${values.lastName}`, values.phone || undefined)
 
     if (!result.success) {
       toast.error(result.error ?? 'Registrierung fehlgeschlagen')
@@ -45,17 +46,31 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-1.5">
-        <Label htmlFor="fullName" className="text-slate-700">Vollständiger Name</Label>
-        <Input
-          id="fullName"
-          type="text"
-          autoComplete="name"
-          placeholder="Max Mustermann"
-          className={errors.fullName ? 'border-red-400' : ''}
-          {...register('fullName')}
-        />
-        {errors.fullName && <p className="text-xs text-red-500">{errors.fullName.message}</p>}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="firstName" className="text-slate-700">Vorname</Label>
+          <Input
+            id="firstName"
+            type="text"
+            autoComplete="given-name"
+            placeholder="Max"
+            className={errors.firstName ? 'border-red-400' : ''}
+            {...register('firstName')}
+          />
+          {errors.firstName && <p className="text-xs text-red-500">{errors.firstName.message}</p>}
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="lastName" className="text-slate-700">Nachname</Label>
+          <Input
+            id="lastName"
+            type="text"
+            autoComplete="family-name"
+            placeholder="Mustermann"
+            className={errors.lastName ? 'border-red-400' : ''}
+            {...register('lastName')}
+          />
+          {errors.lastName && <p className="text-xs text-red-500">{errors.lastName.message}</p>}
+        </div>
       </div>
 
       <div className="space-y-1.5">
